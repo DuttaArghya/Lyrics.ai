@@ -6,8 +6,9 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration);
 
-const basePromptPrefix = `Write me a song in the style of Bob Marley about the following: `;
 const generateAction = async (req, res) => {
+  const legend = req.body.legend ? req.body.legend : "John Lennon";
+  const basePromptPrefix = `Write me a song in the style of ${legend} about the following: `;
   console.log(`API: ${basePromptPrefix}${req.body.userInput}`);
 
   const baseCompletion = await openai.createCompletion({

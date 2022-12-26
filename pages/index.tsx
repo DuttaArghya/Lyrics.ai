@@ -1,13 +1,35 @@
 import { useState } from "react";
 import Head from "next/head";
+import { Snackbar } from '@mui/material';
 
 
 const Home = () => {
   const [userInput, setUserInput] = useState("");
+  const [legend, setLegend] = useState("");
 
   //API Call
   const [apiOutput, setApiOutput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+
+  const CopyToClipboardButton = () => {
+    const [open, setOpen] = useState(false);
+    const handleClick = () => {
+      setOpen(true);
+      navigator.clipboard.writeText(apiOutput);
+    }
+
+    return (
+      <>
+        <button onClick={handleClick}>Copy</button>
+        <Snackbar
+          open={open}
+          onClose={() => setOpen(false)}
+          autoHideDuration={2000}
+          message="Copied to Clipboard"
+        />
+      </>
+    )
+  }
 
   const callGenerateEndpoint = async () => {
     setIsGenerating(true);
@@ -18,7 +40,7 @@ const Home = () => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ userInput }),
+      body: JSON.stringify({ legend, userInput }),
     });
 
     const data = await response.json();
@@ -30,26 +52,37 @@ const Home = () => {
   };
 
   const onUserChangeText = (event) => {
-    setUserInput(event.target.value);
+    if (event.target.name === "legend") {
+      setLegend(event.target.value);
+    } else {
+      setUserInput(event.target.value);
+    }
   };
 
   return (
     <div className="root">
       <Head>
-        <title>GPT-3 Writer | Arghya</title>
+        <title>Lyrics.ai - Legends never die</title>
       </Head>
       <div className="container">
         <div className="header">
           <div className="header-title">
-            <h1>Bob Marley</h1>
+            <h1>Lyrics.ai</h1>
           </div>
           <div className="header-subtitle">
-            <h2>"So much trouble in the world. All you got to do: give a little. "</h2>
+            <h2>Legends never die.</h2>
           </div>
         </div>
         <div className="prompt-container">
           <textarea
-            placeholder="Anything you want Bob Marley to write a song about..."
+            name="legend"
+            placeholder="John Lennon"
+            className="legend-box"
+            value={legend}
+            onChange={onUserChangeText}
+          />
+          <textarea
+            placeholder="Anything you want the song to be about..."
             className="prompt-box"
             value={userInput}
             onChange={onUserChangeText}
@@ -82,6 +115,7 @@ const Home = () => {
               <div className="output-content">
                 <p>{apiOutput}</p>
               </div>
+              <CopyToClipboardButton />
             </div>
           )}
         </div>
